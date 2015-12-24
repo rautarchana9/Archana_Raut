@@ -19,4 +19,4 @@ The current application stores the user preferences to either user.txt or user.p
 In order to make the application extensible for plugging in new formats, I have used Reflections in programming. After instantiating the required class for a particular file format, the required `export` method is called 
 `getattr(method, "export")()`, where `method`, is the user selected class for a particular file format.
 
-Plug in a new file format by inheriting the base class `UserPref` and adding a method `export` to the new class.
+Plug in a new file format by inheriting the base class `UserPref` and adding a method `export` to the new class. Then add the new file format extension to `EXPORT_METHOD` dictionary to instantiate the corresponding new class. 
