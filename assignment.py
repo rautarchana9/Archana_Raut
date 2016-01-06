@@ -14,8 +14,8 @@ def load_modules_from_path(path):
 
 def select_exportclass(prefs):
     ''' Find the right class for exporting user preferences'''
-    modulename = prefs["ext"]
-    method = getattr(sys.modules[modulename], "UserPref" + prefs["ext"])
+    modulename = prefs["ext"].lower()
+    method = getattr(sys.modules[modulename], "UserPref" + modulename)
     return method(prefs)
 
 def main():
