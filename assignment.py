@@ -1,38 +1,22 @@
 '''Movie Aggregrator'''
 import sys
-from fpdf import FPDF
+import os
 
-class UserPref(object):
-    ''' class for userpreferences '''
-    def __init__(self, prefs):
-        for key, value in prefs.iteritems():
-            setattr(self, key, value)
-
-class UserPrefTxt(UserPref):
-    '''class for exporting userpreferences to txt file '''
-    def export(self):
-        ''' export user preferences as plain text'''
-        target = open('user.txt', 'a')
-        target.write(str(self.__dict__))
-
-class UserPrefPdf(UserPref):
-    '''class for exporting userpreferences to pdf file '''
-    def export(self):
-        ''' export user preferences as plain pdf '''
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font('Arial', 'B',8)
-        pdf.cell(40, 10, str(self.__dict__))
-        pdf.output('user.pdf', 'F')
-
-EXPORT_METHOD = {
-    "txt" : UserPrefTxt,
-    "pdf" : UserPrefPdf,
-}
+def load_modules_from_path(path):
+    """ Import all modules from a given directory"""
+    if path[-1:] != "/":
+        path += "/"
+    sys.path.append(path)
+    for doc in os.listdir(path):
+        if len(doc) > 3 and doc[-3:] == '.py':
+            modname = doc[:-3]
+            __import__(modname, globals(), locals(), ['*'])
 
 def select_exportclass(prefs):
-    ''' find the right class for exporting user preferences'''
-    return EXPORT_METHOD[prefs["ext"]](prefs)
+    ''' Find the right class for exporting user preferences'''
+    modulename = prefs["ext"]
+    method = getattr(sys.modules[modulename], "UserPref" + prefs["ext"])
+    return method(prefs)
 
 def main():
     """ Get user preferences"""
@@ -48,6 +32,7 @@ def main():
             prefs["leadactor"] = raw_input("Enter the name of the lead actor\n>")
             prefs["genre"] = raw_input("Enter the genre\n>")
             prefs["ext"] = raw_input("Enter file format to save your preferences. e.g. pdf, txt\n>")
+            load_modules_from_path('modules')
             method = select_exportclass(prefs)
             getattr(method, "export")()
         else:
